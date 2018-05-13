@@ -6,8 +6,10 @@ import zemberek.morphology.analysis.WordAnalysis;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -18,9 +20,11 @@ public class PreProcessing {
 
     public static String[] getStopWord() {
         try {
-            return new String(Files.readAllBytes(Paths.get("../../stopwords.txt")), StandardCharsets.UTF_8).toLowerCase().trim().split("\r\n");
-        } catch (IOException e) {
-            System.out.println("stop word okunamadı");
+            ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+            Path path = Paths.get(Objects.requireNonNull(classLoader.getResource("stopwords.txt")).toURI());
+            return new String(Files.readAllBytes(path), StandardCharsets.UTF_8).toLowerCase().trim().split("\r\n");
+        } catch (IOException | URISyntaxException e) {
+            System.out.println("Stop Words Dosyası Okunamadı!");
             return new String[0];
         }
     }
