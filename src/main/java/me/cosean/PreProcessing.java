@@ -4,9 +4,9 @@ import me.cosean.model.News;
 import zemberek.morphology.TurkishMorphology;
 import zemberek.morphology.analysis.WordAnalysis;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.net.URISyntaxException;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -26,8 +26,8 @@ public class PreProcessing {
         }
     }
 
-    public static HashMap<String, ArrayList<News>> execute(String path, String[] stopWords) throws IOException {
-        HashMap<String, ArrayList<News>> result = new HashMap<>();
+    public static Map<String, List<News>> execute(String path, String[] stopWords) throws IOException {
+        Map<String, List<News>> result = new HashMap<>();
         File dirs = new File(path);
         if (dirs.isDirectory()) {
             TurkishMorphology morphology = TurkishMorphology.createWithDefaults();
@@ -35,8 +35,7 @@ public class PreProcessing {
                 ArrayList<News> newsList = new ArrayList<>();
                 for (File file : Objects.requireNonNull(dir.listFiles())) {
                     if (file.isFile() && (file.getName().substring(file.getName().lastIndexOf('.') + 1).equals("txt"))) {
-                        String text = new String(Files.readAllBytes(Paths.get(file.getPath())), StandardCharsets.UTF_8);
-//                        List<String> strings = Files.readAllLines(Paths.get(file.getPath()));
+                        String text = new String(Files.readAllBytes(file.toPath()), Charset.forName("windows-1254"));
                         String[] split = text.toLowerCase().replaceAll("\\p{P}", " ").trim().split("\\s+");
                         StringBuilder newString = new StringBuilder();
                         for (String word : split) {
@@ -46,8 +45,8 @@ public class PreProcessing {
                             }
                         }
                         News news = new News(file.getName(), text, newString.toString(), dir.getName());
-                        news.getNgramMap().putAll(NGrams.createNgramMap(2,news.getAnalyzeData()));
-                        news.getNgramMap().putAll(NGrams.createNgramMap(3,news.getAnalyzeData()));
+                        news.getNgramMap().putAll(NGrams.createNgramMap(2, news.getAnalyzeData()));
+                        news.getNgramMap().putAll(NGrams.createNgramMap(3, news.getAnalyzeData()));
                         newsList.add(news);
 
                     }

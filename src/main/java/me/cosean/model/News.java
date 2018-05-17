@@ -9,6 +9,7 @@ public class News {
     private String data;
     private String analyzeData;
     private String type;
+    private String predictedType;
     private Map<String, Integer> ngramMap;
 
     public News(String name, String data, String analyzeData, String type) {
@@ -60,21 +61,24 @@ public class News {
         this.ngramMap = ngramMap;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        News news = (News) o;
-        return Objects.equals(name, news.name) &&
-                Objects.equals(data, news.data) &&
-                Objects.equals(analyzeData, news.analyzeData) &&
-                Objects.equals(type, news.type) &&
-                Objects.equals(ngramMap, news.ngramMap);
+    public String getPredictedType() {
+        return predictedType;
     }
 
-    @Override
-    public int hashCode() {
+    public void setPredictedType(String predictedType) {
+        this.predictedType = predictedType;
+    }
 
-        return Objects.hash(name, data, analyzeData, type, ngramMap);
+
+    @Override
+    public String toString() {
+        return "News{" +"\n" +
+                "name===>'" + name + '\'' + "\n" +
+//                "data===>'" + data + '\'' + "\n" +
+                "analyzeData===>'" + analyzeData + '\'' + "\n" +
+                "type===>'" + type + '\'' + "\n" +
+                "predictedType===>'" + predictedType + '\'' + "\n" +
+                "ngramMap===>" + ngramMap.size() + "\n" +
+                '}';
     }
 }

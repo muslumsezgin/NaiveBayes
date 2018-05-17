@@ -13,9 +13,12 @@ public class NGrams {
             String nGramData = str.substring(i, i + n);
             if (Objects.nonNull(ngrams.get(nGramData)))
                 ngrams.put(nGramData, ngrams.get(nGramData) + 1);
-            else
+            else{
                 ngrams.put(nGramData, 1);
+            }
+
         }
+
         return (HashMap<String, Integer>) ngrams.entrySet().stream()
                 .filter(x -> x.getValue() > 50)
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
