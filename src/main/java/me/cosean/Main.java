@@ -12,7 +12,7 @@ public class Main {
     public static void main(String[] args) {
 
         //String path = "C:\\Users\\anil\\Desktop\\Deneme";
-        String path = "C:\\Users\\anil\\Desktop\\1150haber\\raw_texts";
+        /*String path = "C:\\Users\\anil\\Desktop\\1150haber\\raw_texts";
 
         String[] stopWords = PreProcessing.getStopWord();
         try {
@@ -34,7 +34,7 @@ public class Main {
             Map<String, SuccessModel> suggestSuccessMap = naiveBayes.suggest(testList);
         } catch (IOException e) {
             e.printStackTrace();
-        }
+        }*/
     }
 
 
