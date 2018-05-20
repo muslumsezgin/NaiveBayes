@@ -1,11 +1,10 @@
 package me.cosean;
 
 import me.cosean.model.News;
+import me.cosean.model.SuccessModel;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 
 public class NaiveBayes {
@@ -28,6 +27,10 @@ public class NaiveBayes {
             featureMap.put(category, new HashMap<>());
             newsList.forEach(news -> news.getNgramMap().forEach((k, v) -> featureMap.get(category)
                     .merge(k, v, (v1, v2) -> v1 + v2)));
+            featureMap.forEach((cat, features) -> featureMap.put(cat,
+                    features.entrySet().stream()
+                            .filter(x -> x.getValue() > 0)
+                            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue))));
             totalFeatureMap.put(category, featureMap.get(category).values().stream().mapToInt(Number::intValue).sum());
         });
 
@@ -43,27 +46,36 @@ public class NaiveBayes {
         }
     }
 
-    public void suggest(List<News> dataList) {
+    public Map<String, SuccessModel> suggest(List<News> dataList) {
         dataList.forEach(news -> {
             Map<String, Double> possibilityMap = new HashMap<>();
             featureMap.forEach((category, featureList) -> {
-                possibilityMap.put(category, probability.get(category));
+                possibilityMap.put(category, Math.log(probability.get(category)));
                 news.getNgramMap().forEach((featureName, featureSize) -> {
                     if (Objects.nonNull(featureList.get(featureName))) {
                         double featureSizeOfCategory = featureList.get(featureName) + 1;
                         double allFeatureSize = totalFeatureMap.get(category) + this.featureSize;
                         double possibilityOfBeginInCategory = featureSizeOfCategory / allFeatureSize;
-                        double multiplier = possibilityMap.get(category) * possibilityOfBeginInCategory;
+                        double multiplier = possibilityMap.get(category) + Math.log(Math.pow(possibilityOfBeginInCategory, featureSize));
                         possibilityMap.put(category, multiplier);
                     }
                 });
             });
 
-//            Double max = Collections.max(possibilityMap.values());
-//            String key = possibilityMap.entrySet().stream().filter(x -> x.getValue().equals(max)).collect(Collectors.toList()).get(0).getKey();
-            String key = Collections.max(possibilityMap.entrySet(), Comparator.comparingDouble(Map.Entry::getValue)).getKey();
-            //String key = possibilityMap.entrySet().stream().max((entry1, entry2) -> entry1.getValue() > entry2.getValue() ? 1 : -1).get().getKey();
-            news.setPredictedType(key);
+            String predictedCat = Collections.max(possibilityMap.entrySet(), Comparator.comparingDouble(Map.Entry::getValue)).getKey();
+            news.setPredictedType(predictedCat);
         });
+        Map<String, SuccessModel> successData = new HashMap<>();
+        probability.forEach((category, v) -> successData.put(category, new SuccessModel(
+                dataList.stream()
+                        .filter(news -> news.getType().equals(category) && news.getPredictedType().equals(category))
+                        .count(),
+                dataList.stream()
+                        .filter(news -> news.getType().equals(category))
+                        .count(),
+                dataList.stream()
+                        .filter(news -> news.getPredictedType().equals(category))
+                        .count())));
+        return successData;
     }
 }

@@ -1,6 +1,7 @@
 package me.cosean;
 
 import me.cosean.model.News;
+import me.cosean.model.SuccessModel;
 
 import java.io.IOException;
 import java.util.*;
@@ -10,7 +11,8 @@ public class Main {
 
     public static void main(String[] args) {
 
-        String path = "C:\\Users\\Muslum\\Desktop\\1150haber\\raw_texts";
+        //String path = "C:\\Users\\anil\\Desktop\\Deneme";
+        String path = "C:\\Users\\anil\\Desktop\\1150haber\\raw_texts";
 
         String[] stopWords = PreProcessing.getStopWord();
         try {
@@ -29,9 +31,7 @@ public class Main {
 
             NaiveBayes naiveBayes = new NaiveBayes(trainMap);
             naiveBayes.learn();
-            Collections.shuffle(testList);
-            naiveBayes.suggest(testList);
-            testList.forEach(System.out::println);
+            Map<String, SuccessModel> suggestSuccessMap = naiveBayes.suggest(testList);
         } catch (IOException e) {
             e.printStackTrace();
         }

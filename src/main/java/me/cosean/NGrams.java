@@ -19,9 +19,7 @@ public class NGrams {
 
         }
 
-        return (HashMap<String, Integer>) ngrams.entrySet().stream()
-                .filter(x -> x.getValue() > 50)
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        return ngrams;
     }
 
 
