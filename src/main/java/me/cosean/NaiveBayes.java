@@ -27,7 +27,8 @@ public class NaiveBayes {
             newsList.forEach(news -> news.getNgramMap().forEach((k, v) -> featureMap.get(category)
                     .merge(k, v, (v1, v2) -> v1 + v2)));
             featureMap.forEach((cat, features) -> featureMap.put(cat,
-                    features.entrySet().stream().filter(x -> x.getValue() > 50)
+                    features.entrySet().stream()
+                            .filter(x -> x.getValue() > 50)
                             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue))));
             totalFeatureMap.put(category, featureMap.get(category).values().stream().mapToInt(Number::intValue).sum());
         });
@@ -52,9 +53,9 @@ public class NaiveBayes {
                 news.getNgramMap().forEach((featureName, featureSize) -> {
                     if (Objects.nonNull(featureList.get(featureName))) {
                         double featureSizeOfCategory = featureList.get(featureName) + 1;
-                        double allFeatureSize = totalFeatureMap.get(category) + this.featureSize;
+                        double allFeatureSize = (double)totalFeatureMap.get(category) + (double)this.featureSize;
                         double possibilityOfBeginInCategory = featureSizeOfCategory / allFeatureSize;
-                        double multiplier = possibilityMap.get(category) + Math.log(Math.pow(possibilityOfBeginInCategory, featureSize));
+                        double multiplier = possibilityMap.get(category) + Math.pow(Math.log(possibilityOfBeginInCategory), featureSize);
                         possibilityMap.put(category, multiplier);
                     }
                 });
