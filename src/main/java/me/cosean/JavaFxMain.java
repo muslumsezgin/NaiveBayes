@@ -87,7 +87,7 @@ public class JavaFxMain extends Application implements Initializable {
     }
 
     public void start(Stage primaryStage) throws Exception {
-        primaryStage.setTitle("Cosean Artificial İntelligence!");
+        primaryStage.setTitle("Cosean Artificial Intelligence!");
         String fxmlFile = "/fxml/template.fxml";
         FXMLLoader loader = new FXMLLoader();
         Parent rootNode = loader.load(getClass().getResourceAsStream(fxmlFile));
@@ -114,12 +114,12 @@ public class JavaFxMain extends Application implements Initializable {
                 Collections.shuffle(newsList);
                 int v = (int) (newsList.size() * 0.75);
                 trainMap.put(category, newsList.subList(0, v));
-                List<News> filterList = newsList.subList(v, newsList.size()).stream()
-                        .filter(k -> k.getNgramMap().size() > 0).collect(Collectors.toList());
+                List<News> filterList = newsList.subList(v, newsList.size());
                 testList.addAll(filterList);
             });
             NaiveBayes naiveBayes = new NaiveBayes(trainMap);
             naiveBayes.learn();
+            Collections.shuffle(testList);
             suggestSuccessMap = naiveBayes.suggest(testList);
             testList.forEach(news -> {
                 TreeItem<String> item = new TreeItem<>();
@@ -135,18 +135,13 @@ public class JavaFxMain extends Application implements Initializable {
         TreeItem<String> rootItem = new TreeItem<>("Test List");
         rootItem.setExpanded(true);
         initData(rootItem,path);
-        treeView.getSelectionModel().selectedItemProperty().addListener(new ChangeListener() {
-            @Override
-            public void changed(ObservableValue observable, Object oldValue,
-                                Object newValue) {
-                TreeItem<String> selectedItem = (TreeItem<String>) newValue;
-                News selectedNews = testList.stream().filter(x -> x.getName().equalsIgnoreCase(selectedItem.getValue())).findFirst().get();
-                context.setText(selectedNews.getData());
-                context_Analyzed.setText(selectedNews.getAnalyzeData());
-                categoryActual.setText(selectedNews.getType());
-                categoryPredicted.setText(selectedNews.getPredictedType());
-            }
-
+        treeView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            TreeItem<String> selectedItem = newValue;
+            News selectedNews = testList.stream().filter(x -> x.getName().equalsIgnoreCase(selectedItem.getValue())).findFirst().get();
+            context.setText(selectedNews.getData());
+            context_Analyzed.setText(selectedNews.getAnalyzeData());
+            categoryActual.setText(selectedNews.getType());
+            categoryPredicted.setText(selectedNews.getPredictedType());
         });
         treeView.setRoot(rootItem);
         categorySelected.setItems(FXCollections.observableList(new ArrayList<>(suggestSuccessMap.keySet())));

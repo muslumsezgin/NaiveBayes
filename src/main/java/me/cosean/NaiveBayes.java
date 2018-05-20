@@ -13,7 +13,6 @@ public class NaiveBayes {
     private Map<String, List<News>> dataMap;
     private Map<String, Map<String, Integer>> featureMap;
     private Map<String, Integer> totalFeatureMap;
-    //TODO: bunu neden yaptık sor
     private int featureSize;
 
     public NaiveBayes(Map<String, List<News>> dataMap) {
@@ -28,8 +27,7 @@ public class NaiveBayes {
             newsList.forEach(news -> news.getNgramMap().forEach((k, v) -> featureMap.get(category)
                     .merge(k, v, (v1, v2) -> v1 + v2)));
             featureMap.forEach((cat, features) -> featureMap.put(cat,
-                    features.entrySet().stream()
-                            .filter(x -> x.getValue() > 0)
+                    features.entrySet().stream().filter(x -> x.getValue() > 50)
                             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue))));
             totalFeatureMap.put(category, featureMap.get(category).values().stream().mapToInt(Number::intValue).sum());
         });
@@ -62,20 +60,17 @@ public class NaiveBayes {
                 });
             });
 
-            String predictedCat = Collections.max(possibilityMap.entrySet(), Comparator.comparingDouble(Map.Entry::getValue)).getKey();
+            String predictedCat = Collections.max(possibilityMap.entrySet(),
+                    Comparator.comparingDouble(Map.Entry::getValue)).getKey();
             news.setPredictedType(predictedCat);
         });
         Map<String, SuccessModel> successData = new HashMap<>();
         probability.forEach((category, v) -> successData.put(category, new SuccessModel(
-                dataList.stream()
-                        .filter(news -> news.getType().equals(category) && news.getPredictedType().equals(category))
-                        .count(),
-                dataList.stream()
-                        .filter(news -> news.getType().equals(category))
-                        .count(),
-                dataList.stream()
-                        .filter(news -> news.getPredictedType().equals(category))
-                        .count())));
+                dataList.stream().filter(news -> news.getType().equals(category)
+                        && news.getPredictedType().equals(category)).count(),
+                dataList.stream().filter(news -> news.getType().equals(category)).count(),
+                dataList.stream().filter(news -> news.getPredictedType().equals(category)).count()
+        )));
         return successData;
     }
 }
